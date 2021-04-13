@@ -31,9 +31,9 @@ for data in datas:
             test_set.append(d)
         else:
             train_set.append(d)
-######################################################
-# Save the testing set and training set as csv files #
-######################################################
+#######################################################
+# Save the testing set and training set as csv files. #
+#######################################################
 with open('test.csv', 'w') as f:
     write = csv.writer(f)
     write.writerows(test_set)
@@ -41,5 +41,18 @@ with open('test.csv', 'w') as f:
 with open('train.csv', 'w') as f:
     write = csv.writer(f)
     write.writerows(train_set)
+##################################################
+# Load in the datas from train.csv and test.csv. #
+##################################################
+training_data = []
+testing_data = []
+with open('train.csv') as csvfile:
+    spamreader = csv.reader(csvfile)
+    for row in spamreader:
+        training_data.append(row)
+with open('test.csv') as csvfile:
+    spamreader = csv.reader(csvfile)
+    for row in spamreader:
+        testing_data.append(row)
 
-pdb.set_trace()
+# pdb.set_trace()
