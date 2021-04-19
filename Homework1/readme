@@ -1,0 +1,7 @@
+In my code, I have separated it into two parts, class and main.
+
+In the class part, I define the function that I need to use, e.g. function for saving and loading csv file, function for calculating likelihood, mean, variance and prior probability.
+
+In the main part, I load the datas from Wine.csv, then randomly select 18 samples from each classes to become test set, and the remain become train set. After saving them as csv file, I fit train set to my model, and get the result of my model, including accuracy and how many datas I misclassify. Then I print out the test set as a figure using PCA.
+
+To use my code, there are two ways. You can either put Wine.csv in the folder only and it will generate train.csv and test.csv by itself, or put Wine.csv, train.csv and test.csv into the folder, then comment row number 103 to 132 inside the code. The first way will get different results every time because of randomly sample test set, and the second way will get same result.
