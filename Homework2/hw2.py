@@ -130,5 +130,6 @@ def main():
     print('MSE of BLR = {e1}, MSE of MLR= {e2}.'.format(e1=CalMSE(predict_BLR, data_test_label), e2=CalMSE(predict_MLR, data_test_label)))
 
 
+
 if __name__ == '__main__':
     main()
