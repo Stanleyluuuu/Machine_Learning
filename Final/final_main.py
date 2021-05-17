@@ -31,8 +31,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Machine Learning Fianl Project')
     parser.add_argument('--method', type=str, default="CNN", metavar='M',
                         help='Input the method you want to use, e.g. LR(Linear Regression), KNN(K-Nearest Neighbor), DT(Decesion Tree), RF(Random Forest) and CNN(Convolutional Neural Network)(default: CNN)')
-    parser.add_argument('--neighbor', type=int, default=10, metavar='N',
-                        help='Input number of neighbor (default: 10)')
+    parser.add_argument('--neighbor', type=int, default=3, metavar='N',
+                        help='Input number of neighbor (default: 3)')
     parser.add_argument('--depth', type=int, default=1, metavar='D',
                         help='Input max depth for Random Forest (default: 1)')
     parser.add_argument('--state', type=int, default=1, metavar='S',
@@ -56,26 +56,42 @@ if __name__ == "__main__":
     if args.method == "LR":
         print("Using Linear Regression")
         model = LinearRegression().fit(train_x, train_y)
-        prediction = model.predict(test)
-        print(prediction)
+        prediction = model.predict(train_x)
+        acc = sum(np.argmax(prediction, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
+        print("Accuracy on training set =", acc)
+        # prediction = model.predict(test)
+        # pdb.set_trace()
+        # print(prediction)
 
     if args.method == "KNN":
         print("Using K-Nearest Neighbor")
         model = KNeighborsClassifier(n_neighbors=args.neighbor).fit(train_x, train_y)
-        prediction = model.predict(test)
-        print(prediction)
+        prediction = model.predict(train_x)
+        acc = sum(np.argmax(prediction, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
+        print("Accuracy on training set =", acc)
+        # pdb.set_trace()
+        # prediction = model.predict(test)
+        # print(prediction)
 
     if args.method == "DT":
         print("Using Decision Tree")
         model = DecisionTreeClassifier().fit(train_x, train_y)
-        prediction = model.predict(test)
-        print(prediction)
+        prediction = model.predict(train_x)
+        acc = sum(np.argmax(prediction, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
+        print("Accuracy on training set =", acc)
+        # pdb.set_trace()
+        # prediction = model.predict(test)
+        # print(prediction)
 
     if args.method == "RF":
         print("Using Random Forest")
         model = RandomForestClassifier(max_depth=args.depth, random_state=args.state).fit(train_x, train_y)
-        prediction = model.predict(test)
-        print(prediction)
+        prediction = model.predict(train_x)
+        acc = sum(np.argmax(prediction, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
+        print("Accuracy on training set =", acc)
+        pdb.set_trace()
+        # prediction = model.predict(test)
+        # print(prediction)
 
     if args.method == "CNN":
         print("Using Convolution Neural Network")
