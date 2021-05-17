@@ -103,7 +103,7 @@ def get_phi(data, O1, O2, label=False): # function use to convert raw data into 
         return np.array(Phi).T
 
 
-def CalMSE(data, prediction):
+def CalMSE(data, prediction): # Mean Square Error
     squared_error = (data - prediction) ** 2
     sum_squared_error = np.sum(squared_error)
     mean__squared_error = sum_squared_error/prediction.shape[0]
