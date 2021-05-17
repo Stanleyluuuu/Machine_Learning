@@ -6,7 +6,6 @@ Student ID: 109061621
 import numpy as np
 import pandas as pd
 import argparse
-import pdb
 from scipy import stats
 
 class MaxLikeHood():
@@ -124,12 +123,12 @@ def main():
     data_test = pd.read_csv('Validation_set.csv', header=None).to_numpy()
     data_test_feature = data_test[:, :3]
     data_test_label = data_test[:, 3]
-    pdb.set_trace()
-    predict_BLR = BLR(data_train, data_test_feature, O1=O_1, O2=O_2)
-    predict_MLR = MLR(data_train, data_test_feature, O1=O_1, O2=O_2)
+
+    predict_BLR = BLR(data_train, data_test_feature, O1=2, O2=5)
+    predict_MLR = MLR(data_train, data_test_feature, O1=2, O2=2)
 
     print('MSE of BLR = {e1}, MSE of MLR= {e2}.'.format(e1=CalMSE(predict_BLR, data_test_label), e2=CalMSE(predict_MLR, data_test_label)))
-    
+
 
 if __name__ == '__main__':
     main()
