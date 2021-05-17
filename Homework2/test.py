@@ -27,10 +27,10 @@ def main():
     
     # I won't assign O1 and O2 when testing, make sure your default value is the best choice
     predict_BLR = BLR(data_train, data_test_feature)
-    predict_MLR = MLR(data_train, data_test_feature)
+    # predict_MLR = MLR(data_train, data_test_feature)
 
-    print('MSE of BLR = {e1}, MSE of MLR= {e2}.'.format(e1=CalMSE(predict_BLR, data_test_label ), e2=CalMSE(predict_MLR, data_test_label)))
-
+    # print('MSE of BLR = {e1}, MSE of MLR= {e2}.'.format(e1=CalMSE(predict_BLR, data_test_label ), e2=CalMSE(predict_MLR, data_test_label)))
+    print('MSE of BLR = {e1}.'.format(e1=CalMSE(predict_BLR, data_test_label )))
 
 
 if __name__ == '__main__':

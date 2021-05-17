@@ -5,26 +5,73 @@ Student ID: 109061621
 '''
 import numpy as np
 import pandas as pd
-import math
-from scipy.stats import multivariate_normal as mv_norm
 import argparse
 import pdb
 from sklearn import linear_model
+from sklearn.gaussian_process import GaussianProcess
+from scipy import stats
+
+
+
+
+class Bayesian():
+    def __init__(self, features, alpha=0.5, beta=1):
+        self.n_features = features
+        self.alpha = alpha
+        self.beta = beta
+        self.mean = np.zeros(features)
+        self.cov_inv = np.identity(features) / alpha
+        # self.weight = np.random.rand(features)
+        # self.ww = self.weight
+        pass
+
+
+    def fit(self, x, y):
+        for i, ins in enumerate(x):
+            cov_inv = self.cov_inv + self.beta * np.outer(ins, ins)
+            cov = np.linalg.inv(cov_inv)
+            mean = np.dot(cov, (np.dot(self.cov_inv, self.mean) + self.beta * y[i] * ins))
+            self.cov_inv = cov_inv
+            self.mean = mean
+        # lr = 0.005
+        # n, m = x.shape[0], x.shape[1]
+        # for iter in range(100):
+        #     weight = [np.random.normal(w, 0.1) for w in self.weight]
+        #     predictions = (x * weight).sum(axis=1)
+        #     loss = CalMSE(y, predictions)
+        #     gradient = (2 / n) * sum(x * np.array([(predictions - y), ]).T)
+        #     # print("iter {e1}, MSE Loss = {e2}".format(e1=(iter + 1), e2=(loss)))
+        #     self.weight = self.weight - lr * gradient
+        # print(self.ww - self.weight)
+        # pdb.set_trace()
+
+
+    def predict(self, test_x):
+        prediction = []
+        for x in test_x:
+            y_pred_mean = np.dot(x, self.mean)
+            w_cov = np.linalg.inv(self.cov_inv)
+            y_pred_var = (1 / self.beta) + x @ w_cov @ x.T
+            prediction.append(stats.norm(loc=y_pred_mean, scale=y_pred_var ** .5).mean())
+        # weight = [np.random.normal(w, 0.1) for w in self.weight]
+        # prediction = (test_x * weight).sum(axis=1)
+
+        return np.array(prediction)
+        # return prediction
+            
 
 # do not change the name of this function
-def BLR(train_data, test_data_feature, O1=5, O2=5):  # remember to set best choice O1 and O2 as default
+def BLR(train_data, test_data_feature, O1=2, O2=5):  # remember to set best choice O1 and O2 as default
     '''
     output: ndarray with size (length of test_data, )
     '''
     Phi_train, y = get_phi(train_data, O1, O2, label=True)
     Phi_test = get_phi(test_data_feature, O1, O2)
-    regr = linear_model.LinearRegression()
-    # regr = linear_model.BayesianRidge()
-    regr.fit(Phi_train, y)
-    y_BLRprediction = regr.predict(Phi_test)
-    # pdb.set_trace()
+    model = Bayesian(features=Phi_train.shape[1])
+    model.fit(Phi_train, y)
+    y_BLRprediction = model.predict(Phi_test)
 
-    return y_BLRprediction 
+    return y_BLRprediction
 
 
 # do not change the name of this function
@@ -34,9 +81,11 @@ def MLR(train_data, test_data_feature, O1=5, O2=5):  # remember to set best choi
     '''
     Phi_train, y = get_phi(train_data, O1, O2, label=True)
     Phi_test = get_phi(test_data_feature, O1, O2)
-    pdb.set_trace()
+    model = GaussianProcess(theta0=0.1, thetaL=.001, thetaU=1.)
+    model.fit(Phi_train, y)
+    y_MLLSprediction = model.predict(Phi_test)
 
-    return y_MLLSprediction 
+    return y_MLLSprediction
 
 
 def get_phi(data, O1, O2, label=False): # function use to convert raw data into a feature vector
@@ -47,6 +96,7 @@ def get_phi(data, O1, O2, label=False): # function use to convert raw data into 
         for j in range(1, O2+1):
             mui, muj = (s1 * (i - 1) + x1_min), (s2 * (j - 1) + x2_min) # calculating mu_i and mu_j
             px = np.exp(-(((data[:, 0] - mui) ** 2) / (2 * s1 ** 2)) - (((data[:, 1] - muj) ** 2) / (2 * s2 ** 2))) # gaussian basis function
+            px = px - px.mean(axis=0)
             Phi.append(px)
     Phi.append(data[:, 2]) # adding research experience 1 or 0
     Phi.append(np.ones(len(data)))
@@ -90,11 +140,15 @@ def main():
         for j in range(2, 6):
             O_1 = i
             O_2 = j
-            predict_BLR = BLR(data_train, data_test_feature, O1=O_1, O2=O_2)
-            results.append((O_1, O_2, CalMSE(predict_BLR, data_test_label)))
-            print('While O1 = {e2}, O2 = {e3}, MSE of BLR = {e1}'.format(e1=CalMSE(predict_BLR, data_test_label), e2=i, e3=j))
+            # predict_BLR = BLR(data_train, data_test_feature, O1=O_1, O2=O_2)
+            predict_MLR = MLR(data_train, data_test_feature, O1=O_1, O2=O_2)
+            # results.append((O_1, O_2, CalMSE(predict_BLR, data_test_label)))
+            results.append((O_1, O_2, CalMSE(predict_MLR, data_test_label)))
+            # print('While O1 = {e2}, O2 = {e3}, MSE of BLR = {e1}'.format(e1=CalMSE(predict_BLR, data_test_label), e2=i, e3=j))
+            print('While O1 = {e2}, O2 = {e3}, MSE of MLR = {e1}'.format(e1=CalMSE(predict_MLR, data_test_label), e2=i, e3=j))
     a = min(results, key=lambda x: x[2])
     print(a)
+
 
 if __name__ == '__main__':
     main()
