@@ -6,12 +6,32 @@ Student ID: 109061621
 import numpy as np
 import pandas as pd
 import argparse
+<<<<<<< HEAD:Homework2/hw2.py
 import pdb
 from sklearn import linear_model
 from sklearn.gaussian_process import GaussianProcess
 from scipy import stats
 
 
+=======
+from scipy import stats
+
+class MaxLikeHood():
+    def __init__(self, x):
+
+        pass
+
+
+    def fit(self, x, y): # fit the model to get the best weight
+        x_inv = np.linalg.pinv(x)
+        self.weights_leastsquare = np.dot(x_inv, y)
+            
+
+    def predict(self, test_x): # predict the result for validation set (or testing set)
+        predictions = np.dot(test_x, self.weights_leastsquare)
+
+        return predictions
+>>>>>>> refs/remotes/origin/main:Homework2/hw2_template.py
 
 
 class Bayesian():
@@ -21,18 +41,25 @@ class Bayesian():
         self.beta = beta
         self.mean = np.zeros(features)
         self.cov_inv = np.identity(features) / alpha
+<<<<<<< HEAD:Homework2/hw2.py
         # self.weight = np.random.rand(features)
         # self.ww = self.weight
         pass
 
 
     def fit(self, x, y):
+=======
+
+
+    def fit(self, x, y): # fit the model to get the best weight
+>>>>>>> refs/remotes/origin/main:Homework2/hw2_template.py
         for i, ins in enumerate(x):
             cov_inv = self.cov_inv + self.beta * np.outer(ins, ins)
             cov = np.linalg.inv(cov_inv)
             mean = np.dot(cov, (np.dot(self.cov_inv, self.mean) + self.beta * y[i] * ins))
             self.cov_inv = cov_inv
             self.mean = mean
+<<<<<<< HEAD:Homework2/hw2.py
         # lr = 0.005
         # n, m = x.shape[0], x.shape[1]
         # for iter in range(100):
@@ -47,17 +74,27 @@ class Bayesian():
 
 
     def predict(self, test_x):
+=======
+
+
+    def predict(self, test_x): # predict the result for validation set (or testing set)
+>>>>>>> refs/remotes/origin/main:Homework2/hw2_template.py
         prediction = []
         for x in test_x:
             y_pred_mean = np.dot(x, self.mean)
             w_cov = np.linalg.inv(self.cov_inv)
             y_pred_var = (1 / self.beta) + x @ w_cov @ x.T
             prediction.append(stats.norm(loc=y_pred_mean, scale=y_pred_var ** .5).mean())
+<<<<<<< HEAD:Homework2/hw2.py
         # weight = [np.random.normal(w, 0.1) for w in self.weight]
         # prediction = (test_x * weight).sum(axis=1)
 
         return np.array(prediction)
         # return prediction
+=======
+
+        return np.array(prediction)
+>>>>>>> refs/remotes/origin/main:Homework2/hw2_template.py
             
 
 # do not change the name of this function
@@ -75,13 +112,17 @@ def BLR(train_data, test_data_feature, O1=2, O2=5):  # remember to set best choi
 
 
 # do not change the name of this function
-def MLR(train_data, test_data_feature, O1=5, O2=5):  # remember to set best choice O1 and O2 as default
+def MLR(train_data, test_data_feature, O1=2, O2=2):  # remember to set best choice O1 and O2 as default
     '''
     output: ndarray with size (length of test_data, )
     '''
     Phi_train, y = get_phi(train_data, O1, O2, label=True)
     Phi_test = get_phi(test_data_feature, O1, O2)
+<<<<<<< HEAD:Homework2/hw2.py
     model = GaussianProcess(theta0=0.1, thetaL=.001, thetaU=1.)
+=======
+    model = MaxLikeHood(Phi_train)
+>>>>>>> refs/remotes/origin/main:Homework2/hw2_template.py
     model.fit(Phi_train, y)
     y_MLLSprediction = model.predict(Phi_test)
 
@@ -110,7 +151,6 @@ def get_phi(data, O1, O2, label=False): # function use to convert raw data into 
 
 
 def CalMSE(data, prediction):
-
     squared_error = (data - prediction) ** 2
     sum_squared_error = np.sum(squared_error)
     mean__squared_error = sum_squared_error/prediction.shape[0]
@@ -130,6 +170,7 @@ def main():
     data_test = pd.read_csv('Validation_set.csv', header=None).to_numpy()
     data_test_feature = data_test[:, :3]
     data_test_label = data_test[:, 3]
+<<<<<<< HEAD:Homework2/hw2.py
     # predict_BLR = BLR(data_train, data_test_feature, O1=O_1, O2=O_2)
     # predict_MLR = MLR(data_train, data_test_feature, O1=O_1, O2=O_2)
 
@@ -148,6 +189,14 @@ def main():
             print('While O1 = {e2}, O2 = {e3}, MSE of MLR = {e1}'.format(e1=CalMSE(predict_MLR, data_test_label), e2=i, e3=j))
     a = min(results, key=lambda x: x[2])
     print(a)
+=======
+
+    predict_BLR = BLR(data_train, data_test_feature, O1=2, O2=5)
+    predict_MLR = MLR(data_train, data_test_feature, O1=2, O2=2)
+
+    print('MSE of BLR = {e1}, MSE of MLR= {e2}.'.format(e1=CalMSE(predict_BLR, data_test_label), e2=CalMSE(predict_MLR, data_test_label)))
+
+>>>>>>> refs/remotes/origin/main:Homework2/hw2_template.py
 
 
 if __name__ == '__main__':
