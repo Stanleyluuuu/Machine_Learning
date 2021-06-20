@@ -1,0 +1,28 @@
+{
+    "os": "Linux-5.8.0-53-generic-x86_64-with-debian-bullseye-sid",
+    "python": "3.7.10",
+    "heartbeatAt": "2021-06-06T15:47:04.924276",
+    "startedAt": "2021-06-06T15:47:03.991162",
+    "docker": null,
+    "gpu": "TITAN X (Pascal)",
+    "gpu_count": 1,
+    "cpu_count": 4,
+    "cuda": null,
+    "args": [
+        "--method",
+        "CNN",
+        "--train"
+    ],
+    "state": "running",
+    "program": "final_main.py",
+    "codePath": "Final/final_main.py",
+    "git": {
+        "remote": "https://github.com/Stanleyluuuu/Machine_Learning.git",
+        "commit": "b61aff676f2010e728a8f6aeb11e01168d92a523"
+    },
+    "email": "stanley860920@gmail.com",
+    "root": "/home/stanley/Desktop/VSLab/Course/Machine_Learning",
+    "host": "odin",
+    "username": "stanley",
+    "executable": "/home/stanley/anaconda3/envs/ml/bin/python"
+}

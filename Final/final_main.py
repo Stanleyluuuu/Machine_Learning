@@ -24,10 +24,10 @@ if __name__ == "__main__":
                         help='Input max depth for Random Forest (default: 20)')
     parser.add_argument('--state', type=int, default=15, metavar='S',
                         help='Input random state for Random Forest (default: 15)')
-    parser.add_argument('--batchsize', type=int, default=100, metavar='N',
+    parser.add_argument('--batchsize', type=int, default=200, metavar='N',
                         help='Input batch size for training (default: 100)')
-    parser.add_argument('--epoch', type=int, default=200, metavar='N',
-                        help='Input number of epoch for training (default: 200)')
+    parser.add_argument('--epoch', type=int, default=500, metavar='N',
+                        help='Input number of epoch for training (default: 500)')
     parser.add_argument('--optimizer', type=str, default='Adam', metavar='o',
                         help='Input the optimizer, Adam or SGD (default: Adam)')
     parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
@@ -38,6 +38,8 @@ if __name__ == "__main__":
                         help='Use testing mode')
     parser.add_argument('--find', action='store_true', default=False,
                         help='Use finding mode')
+    parser.add_argument('--n', type=int, default=500,
+                        help='For testing')        
     args = parser.parse_args()
     
     
@@ -52,7 +54,7 @@ if __name__ == "__main__":
         print("Accuracy on training set = {e1:.3f}, loss = {e2:.3f}".format(e1=acc, e2=loss))
         prediction = model.predict(test)
         soft_pp = softmax(prediction)
-        save(soft_pp)
+        # save(soft_pp)
 
     if args.method == "KNN":
         train_x, train_y, test = get_data(args)
@@ -110,9 +112,10 @@ if __name__ == "__main__":
                 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9)
             elif args.optimizer == "Adam":
                 optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999))
-            criterion = nn.CrossEntropyLoss()
+            w = torch.tensor((20621 / 7064, 20621 / 8195, 20621 / 3855, 20621 / 1031, 20621 / 476))
             device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             model.to(device)
+            criterion = nn.CrossEntropyLoss(weight=w.to(device))
             print("Start training process")
             for epoch in range(args.epoch):
                 model.train()
@@ -128,8 +131,8 @@ if __name__ == "__main__":
                     loss.backward()
                     optimizer.step()
                     epoch_loss += loss.item()
-                    wandb.log({"Training batch loss":loss.item() / labels.size(0)})
-                    wandb.log({"Training batch accuracy":(predicted == labels).sum().item() / labels.size(0) * 100})
+                    # wandb.log({"Training batch loss":loss.item() / labels.size(0)})
+                    # wandb.log({"Training batch accuracy":(predicted == labels).sum().item() / labels.size(0) * 100})
                 wandb.log({"Training loss per epoch":epoch_loss / total})
                 wandb.log({"Training accuracy per epoch":epoch_correct / total * 100})
                 # saving check point
@@ -139,13 +142,14 @@ if __name__ == "__main__":
         if args.find:
             # print("Using Convolution Neural Network model")
             model = CNN()
-            criterion = nn.CrossEntropyLoss()
             result = []
+            w = torch.tensor((20621 / 7064, 20621 / 8195, 20621 / 3855, 20621 / 1031, 20621 / 476))
             for epoch in range(args.epoch):
                 PATH = "./checkpoint/epoch" + str(epoch + 1)
                 model.load_state_dict(torch.load(PATH))
                 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
                 model.to(device)
+                criterion = nn.CrossEntropyLoss(w.to(device))
                 model.eval()
                 with torch.no_grad():
                     total, epoch_correct, epoch_loss = 0, 0, 0
@@ -165,7 +169,7 @@ if __name__ == "__main__":
         if args.test:
             print("Using Convolution Neural Network model")
             model = CNN()
-            PATH = "./checkpoint/epoch" + str(189)
+            PATH = "./checkpoint/epoch" + str(args.n)
             model.load_state_dict(torch.load(PATH))
             device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             model.to(device)

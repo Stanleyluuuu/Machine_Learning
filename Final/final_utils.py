@@ -18,9 +18,9 @@ class CNN(nn.Module):
         self.dropout = nn.Dropout(p=0.5)
         self.bn1 = nn.BatchNorm1d(6)
         self.bn2 = nn.BatchNorm1d(12)
-        self.fc1 = nn.Linear(6 * 16,  100)
-        self.fc2 = nn.Linear(100, 80)
-        self.fc3 = nn.Linear(80, 5)
+        self.fc1 = nn.Linear(6 * 16,  150)
+        self.fc2 = nn.Linear(150, 100)
+        self.fc3 = nn.Linear(100, 5)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -55,9 +55,9 @@ def read_file(data_dir, label=0):
                 elif label == 5:
                     labels[i-1][int(row[-1]) - 1] = 1
     if label == 0:
-        return data
+        return np.array(data)
     else:
-        return data, labels
+        return np.array(data), np.array(labels)
 
 
 def get_data(args, row=5): # get the datas from csv file and turns into the format I need
@@ -65,19 +65,17 @@ def get_data(args, row=5): # get the datas from csv file and turns into the form
     train_x, train_y = read_file(train_dir, row)
     test = read_file(test_dir)
     if args.method == "CNN":
-        train_x, test = np.array(train_x), np.array(test)
         ex_tx, ex_t = train_x[:, np.newaxis, :], test[:, np.newaxis, :]
-        preprocess = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=(0.5), std=(0.5))])
+        preprocess = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5), (0.5))])
         t_train_x, t_train_y, t_test = np.einsum('abc->bca', preprocess(ex_tx)), torch.tensor(train_y, dtype=torch.long), np.einsum('abc->bca', preprocess(ex_t))
         trainset = torch.utils.data.TensorDataset(torch.Tensor(t_train_x), t_train_y)
         testset = torch.utils.data.TensorDataset(torch.Tensor(t_test))
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batchsize, shuffle=True)
         testloader = torch.utils.data.DataLoader(testset, batch_size=500, shuffle=False)
-
         return trainloader, testloader
     else:
         
-        return np.array(train_x), np.array(train_y), np.array(test)
+        return train_x, train_y, test
 
 
 def softmax(prediction): # softmax function
