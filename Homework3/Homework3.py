@@ -1,18 +1,16 @@
 from Homework3_utils import *
 import argparse
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+import pdb
 '''
-In this homework, I implement a image classifier using SGD with momentum.
-I use ReLU as activation function, and softmax at the last layer.
-I didn't apply batch normalization in this work.
-
 To reproduce my work, you have to put "Data" folder in the same folder as these two python file.
 There are "Data_train" and "Data_test" inside "Data", and there three classes inside
 each training and testing folder.
 
-python Homework3.py --batchsize 200 --lr 0.001 --momentum 0.9 --epoch 300 --shuffle --normalize
+python Homework3.py --batchsize 200 --lr 0.001 --momentum 0.9 --epoch 500 --p1
 '''
-parser = argparse.ArgumentParser(description='Machine Learning Fianl Project')
+parser = argparse.ArgumentParser(description='Machine Learning Homework 3')
 parser.add_argument('--batchsize', type=int, default=100, metavar='N',
                     help='Input batch size for training (default: 100)')
 parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
@@ -21,15 +19,26 @@ parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
                     help='Momentum for using SGD (default: 0.9)')
 parser.add_argument('--epoch', type=int, default=200, metavar='E',
                     help='Number of training epoch (default: 200)')
-parser.add_argument('--shuffle', action='store_true', default=False,
-                    help='Wether shuffle the dataset')
-parser.add_argument('--normalize', action='store_true', default=False,
-                    help='Wether normalize the dataset')
+parser.add_argument('--p1', action='store_true', default=False,
+                    help='Whether to run part 1')
+parser.add_argument('--p2', action='store_true', default=False,
+                    help='Whether to run part 2')
 args = parser.parse_args()
-########################## Hyperparameters ##############################
-layers = [2048, 800, 100, 3] # define model layers, first layer must be 2048(input size), and last layer must be 3(classification head)
-#########################################################################
-trainloader, testloader = get_data(batchsize=args.batchsize, shuffle=args.shuffle, normalize=args.normalize) # get datas as a dataloader
+
+if args.p1:
+    layers = [3, 1200, 3] # define model layers, first layer must be 3(input size), and last layer must be 3(classification head)
+    print("Start Part 1")
+if args.p2:
+    layers = [3, 200, 150, 3] # define model layers, first layer must be 3(input size), and last layer must be 3(classification head)
+    print("Start Part 2")
+train_x, train_y, test_x, test_y = get_data(batchsize=args.batchsize, preprocess=True) # get data from the folder with preprocess, i.e. normalize, shuffle
+pca = PCA(n_components=2)
+pca.fit(train_x)
+pca_train_x, pca_test_x = pca.transform(train_x), pca.transform(test_x) # transform data into 2 dimensions
+b1, b2 = np.random.random(pca_train_x.shape[0]), np.random.random(pca_test_x.shape[0]) # create bias
+x_train, x_test = np.hstack((pca_train_x, b1[:, np.newaxis])), np.hstack((pca_test_x, b2[:, np.newaxis]))
+trainloader = dataloader(x_train, train_y, batchsize=args.batchsize)
+testloader = dataloader(x_test, test_y, batchsize=args.batchsize)
 model = NeuralNetwork(layers)
 train_loss, train_acc, test_loss, test_acc = [], [], [], []
 print("Start training")
@@ -62,25 +71,25 @@ for epoch in range(args.epoch):
     test_loss.append(epoch_loss/count), test_acc.append(acc/count)
     print("Testing loss = {e1:5f}, accuracy = {e2:3f}".format(e1=epoch_loss/count, e2=acc/count))
     print("##########################################################################")
-
 print("###################")
 print("# Finish training #")
 print("###################")
-a = np.linspace(1, args.epoch, args.epoch)
-fig, axs = plt.subplots(1, 2)
-axs[0].plot(a, train_loss)
-axs[0].set_title("Training Loss")
-axs[0].set_xlabel("epoch")
-axs[1].plot(a, train_acc)
-axs[1].set_title("Training Accuracy")
-axs[1].set_xlabel("epoch")
-fig.savefig("Training.png")
-
-fig2, axx = plt.subplots(1, 2)
-axx[0].plot(a, test_loss)
-axx[0].set_title("Testing Loss")
-axx[0].set_xlabel("epoch")
-axx[1].plot(a, test_acc)
-axx[1].set_title("Testing Accuracy")
-axx[1].set_xlabel("epoch")
-fig2.savefig("Testing.png")
+# output_train = model.forward(x_train)
+# output_test = model.forward(x_test)
+# predicted_train = model.max(output_train)
+# predicted_test = model.max(output_test)
+predicted_train = model.max(model.forward(x_train))
+predicted_test = model.max(model.forward(x_test))
+e = np.linspace(1, args.epoch, args.epoch)
+print("Start plotting")
+if args.p1:
+    plot_decision_region(x_train, predicted_train, "decision_region_p1_train")
+    plot_decision_region(x_test, predicted_test, "decision_region_p1_test")
+    plot_loss_acc(train_loss, train_acc, e, "Training", "part1")
+    plot_loss_acc(test_loss, test_acc, e, "Testing", "part1")
+if args.p2:
+    plot_decision_region(x_train, predicted_train, "decision_region_p2_train")
+    plot_decision_region(x_test, predicted_test, "decision_region_p2_test")
+    plot_loss_acc(train_loss, train_acc, e, "Training", "part2")
+    plot_loss_acc(test_loss, test_acc, e, "Testing", "part2")
+print("Finish plotting")
