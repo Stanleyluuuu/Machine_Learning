@@ -4,7 +4,7 @@ import os
 from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import pdb
+
 class NeuralNetwork():
     def __init__(self, layers):
         self.parameters, self.velocity, self.training = {}, {}, True
@@ -127,10 +127,12 @@ def cross_entropy(y_pd, y_gt, epsilon=1e-10): # calculate cross entropy loss
     return loss
 
 def sigmoid(x): # sigmoid function
+    
     return 1 / (1 + np.exp(-x))
 
 def sigmoid_delta(x): # derivative of relu function
     f = sigmoid(x)
+
     return f * (1 - f)
 
 def plot_decision_region(x, y, filename):

@@ -2,14 +2,7 @@ from Homework3_utils import *
 import argparse
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
-import pdb
-'''
-To reproduce my work, you have to put "Data" folder in the same folder as these two python file.
-There are "Data_train" and "Data_test" inside "Data", and there three classes inside
-each training and testing folder.
 
-python Homework3.py --batchsize 200 --lr 0.001 --momentum 0.9 --epoch 500 --p1
-'''
 parser = argparse.ArgumentParser(description='Machine Learning Homework 3')
 parser.add_argument('--batchsize', type=int, default=100, metavar='N',
                     help='Input batch size for training (default: 100)')
@@ -74,10 +67,6 @@ for epoch in range(args.epoch):
 print("###################")
 print("# Finish training #")
 print("###################")
-# output_train = model.forward(x_train)
-# output_test = model.forward(x_test)
-# predicted_train = model.max(output_train)
-# predicted_test = model.max(output_test)
 predicted_train = model.max(model.forward(x_train))
 predicted_test = model.max(model.forward(x_test))
 e = np.linspace(1, args.epoch, args.epoch)

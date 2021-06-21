@@ -1,0 +1,21 @@
+I separate my code into two parts, p1 and p2
+
+# First, you have to put the data folder and the python file in a same folder
+# Then run the code, it will train the model from scratch and perform results.
+
+You have to use my code as shown below:
+python Homework3.py --batchsize 200 --lr 0.001 --momentum 0.9 --epoch 500 --p1
+
+-- In p1 --
+We will run the code as the demand in part 1 of the homework, which is a classifier
+with one hidden layer. You can switch the dimension by change the number in the variable "layers"
+
+-- In p2 --
+We will run the code as the demand in part 2 of the homework, which is a classifier
+with two hidden layer. You can switch the dimension by change the number in the variable "layers"
+
+You can also switch some hyper parameters like batch size, learning rate, momentum of optimizer
+, number of training epoch and which part to run by change the number after --batchsize --lr --momentum --epoch --p1
+
+The code will perform a classifier using SGD with momentum, it will generate the plot of training and 
+testing loss, accuracy and the decision region of the model.
