@@ -84,16 +84,13 @@ def softmax(prediction): # softmax function
 
     return a / b[:, np.newaxis]
 
-def get_loss(prediction, y, epsilon=None): # calculate cross entropy loss, adding epsilon to make sure no log(0) won't appear
-    if epsilon:
-        log_loss = (1 / prediction.shape[0]) * np.nansum(y * np.log(prediction + epsilon))
-    else:
-        log_loss = (1 / prediction.shape[0]) * np.nansum(y * np.log(prediction))
+def get_loss(prediction, y, epsilon=1e-10): # calculate cross entropy loss, adding epsilon to make sure no log(0) won't appear
+    log_loss = (1 / prediction.shape[0]) * np.nansum(y * np.log(prediction + epsilon))
     
     return -log_loss
 
-def save(prediction): # save the result as test.csv file in the format of AIdea
-    with open("test.csv", 'w') as f:
+def save(prediction, filename): # save the result as test.csv file in the format of AIdea
+    with open(filename + ".csv", 'w') as f:
         f.write("ID,C1,C2,C3,C4,C5")
         f.write("\n")
         for i, p in enumerate(prediction):
@@ -102,20 +99,3 @@ def save(prediction): # save the result as test.csv file in the format of AIdea
                 f.write("," + str(n))
             if i != 499:
                 f.write("\n")
-
-def db(args):
-    sweep_config = {'method': 'random', #grid, random
-                    'metric': {'name': 'loss','goal': 'minimize'},
-                    'parameters': {'epochs': {'values': [args.epoch]},
-                                   'batch_size': {'values': [args.batchsize]},
-                                   'learning_rate': {'values': [args.lr]},
-                                   'optimizer': {'values': ['adam', 'sgd']}}}
-    sweep_id = wandb.sweep(sweep_config, project="Machine Learning Final Project")
-    config_defaults = {'epochs': args.epoch,
-                       'batch_size': args.batchsize,
-                       'learning_rate': args.lr,
-                       'optimizer': args.optimizer}
-    wandb.init(config=config_defaults)
-    config = wandb.config
-
-    return config

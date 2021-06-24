@@ -51,10 +51,10 @@ if __name__ == "__main__":
         soft_pred = softmax(p_train)
         acc = sum(np.argmax(soft_pred, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
         loss = get_loss(soft_pred, train_y)
-        print("Accuracy on training set = {e1:.3f}, loss = {e2:.3f}".format(e1=acc, e2=loss))
+        print("Accuracy on training set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc, e2=loss))
         prediction = model.predict(test)
         soft_pp = softmax(prediction)
-        # save(soft_pp)
+        save(soft_pp, "LR")
 
     if args.method == "KNN":
         train_x, train_y, test = get_data(args)
@@ -62,10 +62,10 @@ if __name__ == "__main__":
         model = KNeighborsClassifier(n_neighbors=args.neighbor).fit(train_x, train_y)
         p_train = model.predict(train_x)
         acc = sum(np.argmax(p_train, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
-        loss = get_loss(p_train, train_y, epsilon=1e-5)
-        print("Accuracy on training set = {e1:.3f}, loss = {e2:.3f}".format(e1=acc, e2=loss))
+        loss = get_loss(p_train, train_y, epsilon=1e-10)
+        print("Accuracy on training set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc, e2=loss))
         prediction = model.predict(test)
-        save(prediction)
+        save(prediction, "KNN")
 
     if args.method == "DT":
         train_x, train_y, test = get_data(args)
@@ -73,10 +73,10 @@ if __name__ == "__main__":
         model = DecisionTreeClassifier().fit(train_x, train_y)
         p_train = model.predict(train_x)
         acc = sum(np.argmax(p_train, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
-        loss = get_loss(p_train, train_y, epsilon=1e-5)
-        print("Accuracy on training set = {e1:.3f}, loss = {e2:.3f}".format(e1=acc, e2=loss))
+        loss = get_loss(p_train, train_y, epsilon=1e-10)
+        print("Accuracy on training set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc, e2=loss))
         prediction = model.predict(test)
-        save(prediction)
+        save(prediction, "DT")
 
     if args.method == "RF":
         train_x, train_y, test = get_data(args)
@@ -84,26 +84,26 @@ if __name__ == "__main__":
         model = RandomForestClassifier(max_depth=args.depth, random_state=args.state).fit(train_x, train_y)
         p_train = model.predict(train_x)
         acc = sum(np.argmax(p_train, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
-        loss = get_loss(p_train, train_y, epsilon=1e-5)
-        print("Accuracy on training set = {e1:.3f}, loss = {e2:.3f}".format(e1=acc, e2=loss))
+        loss = get_loss(p_train, train_y, epsilon=1e-10)
+        print("Accuracy on training set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc, e2=loss))
         prediction = model.predict(test)
-        save(prediction)
+        save(prediction, "RF")
 
     if args.method == "CNN":
         trainloader, testloader = get_data(args, row=1)
         if args.train:
             sweep_config = {'method': 'random', #grid, random
                             'metric': {'name': 'loss',
-                                    'goal': 'minimize'},
+                                       'goal': 'minimize'},
                             'parameters': {'epochs': {'values': [args.epoch]},
-                                        'batch_size': {'values': [args.batchsize]},
-                                        'learning_rate': {'values': [args.lr]},
-                                        'optimizer': {'values': ['adam', 'sgd']}}}
+                                           'batch_size': {'values': [args.batchsize]},
+                                           'learning_rate': {'values': [args.lr]},
+                                           'optimizer': {'values': ['adam', 'sgd']}}}
             sweep_id = wandb.sweep(sweep_config, project="Machine Learning Final Project")
             config_defaults = {'epochs': args.epoch,
-                            'batch_size': args.batchsize,
-                            'learning_rate': args.lr,
-                            'optimizer': args.optimizer}
+                               'batch_size': args.batchsize,
+                               'learning_rate': args.lr,
+                               'optimizer': args.optimizer}
             wandb.init(config=config_defaults)
             config = wandb.config
             print("Training the Convolution Neural Network model")
