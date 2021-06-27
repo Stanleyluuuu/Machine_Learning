@@ -42,9 +42,10 @@ if __name__ == "__main__":
                         help='For testing')        
     args = parser.parse_args()
     
-    
+    # split()
     if args.method == "LR":
-        train_x, train_y, test = get_data(args)
+        # train_x, train_y, test = get_data(args)
+        train_x, train_y, val_x, val_y, test = get_data(args)
         print("Using Linear Regression")
         model = LinearRegression().fit(train_x, train_y)
         p_train = model.predict(train_x)
@@ -52,45 +53,73 @@ if __name__ == "__main__":
         acc = sum(np.argmax(soft_pred, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
         loss = get_loss(soft_pred, train_y)
         print("Accuracy on training set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc, e2=loss))
-        prediction = model.predict(test)
-        soft_pp = softmax(prediction)
-        save(soft_pp, "LR")
+
+        p_val = model.predict(val_x)
+        soft_pred_v = softmax(p_val)
+        acc_v = sum(np.argmax(soft_pred_v, axis=1) == np.argmax(val_y, axis=1)) / len(val_x)
+        loss_v = get_loss(soft_pred_v, val_y)
+        print("Accuracy on validation set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc_v, e2=loss_v))
+
+        # prediction = model.predict(test)
+        # soft_pp = softmax(prediction)
+        # save(soft_pp, "LR")
 
     if args.method == "KNN":
-        train_x, train_y, test = get_data(args)
+        # train_x, train_y, test = get_data(args)
+        train_x, train_y, val_x, val_y, test = get_data(args)
         print("Using K-Nearest Neighbor")
         model = KNeighborsClassifier(n_neighbors=args.neighbor).fit(train_x, train_y)
         p_train = model.predict(train_x)
         acc = sum(np.argmax(p_train, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
         loss = get_loss(p_train, train_y, epsilon=1e-10)
         print("Accuracy on training set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc, e2=loss))
-        prediction = model.predict(test)
-        save(prediction, "KNN")
+
+        p_val = model.predict(val_x)
+        acc_v = sum(np.argmax(p_val, axis=1) == np.argmax(val_y, axis=1)) / len(val_x)
+        loss_v = get_loss(p_val, val_y, epsilon=1e-10)
+        print("Accuracy on validation set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc_v, e2=loss_v))
+
+        # prediction = model.predict(test)
+        # save(prediction, "KNN")
 
     if args.method == "DT":
-        train_x, train_y, test = get_data(args)
+        # train_x, train_y, test = get_data(args)
+        train_x, train_y, val_x, val_y, test = get_data(args)
         print("Using Decision Tree")
         model = DecisionTreeClassifier().fit(train_x, train_y)
         p_train = model.predict(train_x)
         acc = sum(np.argmax(p_train, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
         loss = get_loss(p_train, train_y, epsilon=1e-10)
         print("Accuracy on training set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc, e2=loss))
+
+        p_val = model.predict(val_x)
+        acc_v = sum(np.argmax(p_val, axis=1) == np.argmax(val_y, axis=1)) / len(val_x)
+        loss_v = get_loss(p_val, val_y, epsilon=1e-10)
+        print("Accuracy on validation set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc_v, e2=loss_v))
+
         prediction = model.predict(test)
         save(prediction, "DT")
 
     if args.method == "RF":
-        train_x, train_y, test = get_data(args)
+        # train_x, train_y, test = get_data(args)
+        train_x, train_y, val_x, val_y, test = get_data(args)
         print("Using Random Forest")
         model = RandomForestClassifier(max_depth=args.depth, random_state=args.state).fit(train_x, train_y)
         p_train = model.predict(train_x)
         acc = sum(np.argmax(p_train, axis=1) == np.argmax(train_y, axis=1)) / len(train_x)
         loss = get_loss(p_train, train_y, epsilon=1e-10)
         print("Accuracy on training set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc, e2=loss))
+
+        p_val = model.predict(val_x)
+        acc_v = sum(np.argmax(p_val, axis=1) == np.argmax(val_y, axis=1)) / len(val_x)
+        loss_v = get_loss(p_val, val_y, epsilon=1e-10)
+        print("Accuracy on validation set = {e1:.3f}%, loss = {e2:.3f}".format(e1=acc_v, e2=loss_v))
+
         prediction = model.predict(test)
         save(prediction, "RF")
 
     if args.method == "CNN":
-        trainloader, testloader = get_data(args, row=1)
+        trainloader, valloader, testloader = get_data(args, row=1)
         if args.train:
             sweep_config = {'method': 'random', #grid, random
                             'metric': {'name': 'loss',
@@ -131,8 +160,6 @@ if __name__ == "__main__":
                     loss.backward()
                     optimizer.step()
                     epoch_loss += loss.item()
-                    # wandb.log({"Training batch loss":loss.item() / labels.size(0)})
-                    # wandb.log({"Training batch accuracy":(predicted == labels).sum().item() / labels.size(0) * 100})
                 wandb.log({"Training loss per epoch":epoch_loss / total})
                 wandb.log({"Training accuracy per epoch":epoch_correct / total * 100})
                 # saving check point
@@ -153,7 +180,8 @@ if __name__ == "__main__":
                 model.eval()
                 with torch.no_grad():
                     total, epoch_correct, epoch_loss = 0, 0, 0
-                    for data in trainloader:
+                    # for data in trainloader:
+                    for data in valloader:
                         inputs, labels = data[0].to(device), data[1].to(device)
                         outputs = model(inputs)
                         _, predicted = torch.max(outputs.data, 1)
