@@ -1,14 +1,11 @@
 import numpy as np
 import pandas as pd
 import torch
-import pdb
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 class CNN2(nn.Module):
     def __init__(self):
