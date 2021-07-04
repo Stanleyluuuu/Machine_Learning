@@ -152,6 +152,7 @@ def get_data(file_dir, train=False):
         else:
             time = time[0]+time[1]
         df['TS'][i] = date+time
+
     df = df.apply(pd.to_numeric, errors='coerce')
     attributes = ['TS', 'X01', 'X02', 'X03', 'X04', 'X05', 'X06', 'X07', 'X08', 'X09', 'X10', 'X11', 'X12', 'X13', 'X14', 'X15', 'X16', 'X17', 'X18', 'X19', 'X20', 'X21', 'X22', 'X23', 'X24']
     x = df[attributes]
@@ -164,7 +165,6 @@ def get_data(file_dir, train=False):
         return np.array(x)
 
 def save(x, method):
-    # pdb.set_trace()
     predicted = pd.DataFrame(x)
     predicted.columns = ['C1','C2','C3','C4','C5']
     predicted.insert(loc=0, column='ID', value=np.arange(500)+1)
@@ -195,4 +195,4 @@ def softmax(y): # softmax function
 
     return exp_y / sum[:, np.newaxis]
     
-    
+### maybe add LDA

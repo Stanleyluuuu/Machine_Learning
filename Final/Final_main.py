@@ -9,13 +9,14 @@ from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from utils import *
 import wandb
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Machine Learning Fianl Project')
     parser.add_argument('--method', type=str, default="CNN", metavar='M',
-                        help='Input the method you want to use, e.g. LR(Linear Regression), KNN(K-Nearest Neighbor), DT(Decesion Tree), RF(Random Forest) and CNN1D, CNN2D(Convolutional Neural Network)(default: CNN)')
+                        help='Input the method you want to use, e.g. LR(Linear Regression), KNN(K-Nearest Neighbor), DT(Decesion Tree), RF(Random Forest), LDA(Linear Discriminant Analysis) and CNN1D, CNN2D(Convolutional Neural Network)(default: CNN)')
     parser.add_argument('--batchsize', type=int, default=200, metavar='N',
                         help='Input batch size for training (default: 100)')
     parser.add_argument('--epoch', type=int, default=500, metavar='N',
@@ -33,6 +34,7 @@ if __name__ == "__main__":
     parser.add_argument('--n', type=int, default=500,
                         help='For testing')        
     args = parser.parse_args()
+
     # get the data
     train_dir, test_dir = './fgd_data/train.csv', './fgd_data/test.csv'
     if args.method == "LR":
@@ -87,6 +89,19 @@ if __name__ == "__main__":
         print('============================================\n\n')
         prediction_test = model.predict_proba(x_test)
         save(prediction_test, "RF")
+    if args.method == "LDA":
+        x_train, y_train, x_val, y_val = get_data(train_dir, train=True)
+        x_test = get_data(test_dir)
+        model = LinearDiscriminantAnalysis()
+        model.fit(x_train, y_train)
+        predictions = model.predict(x_val)
+        loss = metrics.mean_absolute_error(y_val, predictions)
+        accuracy = metrics.accuracy_score(y_val, predictions)
+        print('\n\n============================================')
+        print('Linear Discriminant Analysis\nAccuracy = {e1}\nMean absolute error = {e2}'.format(e1=accuracy, e2=loss))
+        print('============================================\n\n')
+        prediction_test = model.predict_proba(x_test)
+        save(prediction_test, "LDA")
     if args.method == "CNN":
         if args.model == 1:
             x_train, y_train, x_val, y_val = get_data(train_dir, train=True)
